@@ -54,9 +54,10 @@ class Project
       base_statement
     else
       statement_by_role = {}
+      oauth_scope = user.try(:oauth_scope)
       unless options[:member]
         role = user.builtin_role
-        if role.allowed_to?(permission)
+        if role.allowed_to?(permission, oauth_scope)
           s = public_projects_condition(user)
           if user.id
             group = role.anonymous? ? Group.anonymous : Group.non_member
@@ -70,14 +71,14 @@ class Project
         end
       end
       user.project_ids_by_role.each do |role, project_ids|
-        if role.allowed_to?(permission) && project_ids.any?
+        if role.allowed_to?(permission, oauth_scope) && project_ids.any?
           statement_by_role[role] = "#{Project.table_name}.id IN (#{project_ids.join(',')})"
         end
       end
 
       ### START PATCH FOR NON-MEMBER EXCEPTIONS BY ORGANIZATION ###
       user.organization_non_member_project_ranges_by_role.each do |role, ranges|
-        next unless role.allowed_to?(permission)
+        next unless role.allowed_to?(permission, oauth_scope)
 
         s = ranges.map do |lft, rgt|
           "(#{Project.table_name}.lft >= #{lft} AND #{Project.table_name}.rgt <= #{rgt})"

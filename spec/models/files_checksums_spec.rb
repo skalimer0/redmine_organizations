@@ -8,8 +8,8 @@ describe "FilesChecksums" do
   end
 
   it "ensures the project patch file is up to date" do
-    # 6.1.5, 7.0.2 and trunk checksums (the self.allowed_to_condition method is completely overridden and should be reviewed if this test breaks)
-    assert_checksum %w(84fc094b29a126cd7beee98b6706af2f 27be4dfb1a6548b605fbb95a38019574), "app/models/project.rb"
+    # 6.1.6, 7.0.3 and trunk checksums (the self.allowed_to_condition method is completely overridden and should be reviewed if this test breaks)
+    assert_checksum %w(2eaaee29da4d7f107041eb980d5e2758 fed61ab1b799547ed620f7eab1383f0a), "app/models/project.rb"
   end
 
 end

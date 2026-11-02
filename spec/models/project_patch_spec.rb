@@ -64,6 +64,25 @@ describe "ProjectPatch" do
       expect(Project.allowed_to(user, :view_time_entries).ids).not_to include(project.id)
     end
 
+    it "ignores the role when the OAuth scope does not include the permission" do
+      user.oauth_scope = [:view_project]
+
+      expect(Project.allowed_to(user, :view_issues).ids).not_to include(project.id)
+    end
+
+    it "keeps the role when the OAuth scope includes the permission" do
+      user.oauth_scope = [:view_issues]
+
+      expect(Project.allowed_to(user, :view_issues).ids).to include(project.id)
+    end
+
+    it "ignores the builtin and member roles when the OAuth scope is empty" do
+      member = User.find(2)
+      member.oauth_scope = []
+
+      expect(Project.allowed_to_condition(member, :view_issues)).to eq("1=0")
+    end
+
     it "applies the issues visibility of the role" do
       public_issue = Issue.generate!(project: project, author_id: 2)
       private_issue = Issue.generate!(project: project, author_id: 2, is_private: true)
